@@ -203,7 +203,7 @@ export default function (pi: ExtensionAPI): void {
       `lastError=${d.error ? redactSecrets(d.error) : "none"}`,
       "transport=native-streamSimple (standalone, no agy.exe required)",
       "accountMode=single-account (/login agy, /logout)",
-      "commands=/agy-doctor /agy-usage /generate /agy-search",
+      "commands=/agy-doctor /agy-usage /generate",
     ];
     emitCommandOutput(ctx, `pi-agy doctor\n${lines.join("\n")}`);
   };
@@ -252,45 +252,5 @@ export default function (pi: ExtensionAPI): void {
     description:
       "Generate an image via Antigravity (usage: /generate [--ratio 16:9] <prompt>)",
     handler: imageHandler,
-  });
-
-  // Search handler
-  const searchHandler = async (args: string, ctx: ExtensionCommandContext) => {
-    const parsed = parseSearchCommandArgs(args || "");
-    if (!parsed.query) {
-      emitCommandOutput(
-        ctx,
-        "Usage: /agy-search [--thinking] [--url <url>] <query>",
-        "warning",
-      );
-      return;
-    }
-    try {
-      const apiKey = await resolveApiKeyFromContext(ctx);
-      if (!apiKey) {
-        emitCommandOutput(
-          ctx,
-          "No Antigravity credentials. Run /login agy first.",
-          "warning",
-        );
-        return;
-      }
-      if (ctx.hasUI) ctx.ui.notify("Searching Google via Antigravity Grounding…", "info");
-      const result = await executeAntigravitySearch({
-        apiKey,
-        query: parsed.query,
-        urls: parsed.urls,
-        thinking: parsed.thinking,
-      });
-      emitCommandOutput(ctx, result);
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error);
-      emitCommandOutput(ctx, `Antigravity search failed: ${redactSecrets(msg)}`, "warning");
-    }
-  };
-  pi.registerCommand("agy-search", {
-    description:
-      "Search the web via Antigravity Grounding (usage: /agy-search [--thinking] [--url <url>] <query>)",
-    handler: searchHandler,
   });
 }
