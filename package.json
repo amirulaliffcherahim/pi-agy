@@ -1,0 +1,49 @@
+{
+  "name": "pi-agy",
+  "version": "1.0.0",
+  "description": "Standalone Antigravity (agy) provider for Pi Coding Agent — single-account OAuth, live model catalog, quota & availability, image generation, and Grounding search without agy.exe",
+  "author": "amirulaliffcherahim",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amirulaliffcherahim/pi-agy.git"
+  },
+  "homepage": "https://github.com/amirulaliffcherahim/pi-agy#readme",
+  "bugs": {
+    "url": "https://github.com/amirulaliffcherahim/pi-agy/issues"
+  },
+  "type": "module",
+  "main": "./src/index.ts",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "agy",
+    "antigravity",
+    "google",
+    "oauth",
+    "provider"
+  ],
+  "files": [
+    "LICENSE",
+    "README.md",
+    "src",
+    "tsconfig.json"
+  ],
+  "engines": {
+    "node": ">=22.15.0"
+  },
+  "pi": {
+    "extensions": [
+      "./src/index.ts",
+      "./src/features/google-search.ts",
+      "./src/features/generate-image.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": ">=0.80.0",
+    "@earendil-works/pi-coding-agent": ">=0.80.0"
+  },
+  "dependencies": {
+    "undici": "^8.11.2"
+  }
+}
