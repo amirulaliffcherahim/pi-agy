@@ -175,73 +175,6 @@ export default function (pi: ExtensionAPI): void {
     handler: usageHandler,
   });
 
-  // Models handler
-  const modelsHandler = async (args: string, ctx: ExtensionCommandContext) => {
-    const all = /\ball\b/i.test(args || "");
-    await withUsage(ctx, (usage) => formatModelsList(usage, { all }));
-  };
-  pi.registerCommand("agy-models", {
-    description: "List Antigravity runtime models + remaining pool fraction",
-    handler: modelsHandler,
-  });
-  pi.registerCommand("antigravity.models", {
-    description: "Alias for /agy-models",
-    handler: modelsHandler,
-  });
-
-  // Refresh handler
-  const refreshHandler = async (_args: string, ctx: ExtensionCommandContext) => {
-    const apiKey = await resolveApiKeyFromContext(ctx);
-    if (!apiKey) {
-      emitCommandOutput(
-        ctx,
-        "No Antigravity credentials. Run /login agy first.",
-        "warning",
-      );
-      return;
-    }
-    if (ctx.hasUI) ctx.ui.notify("Refreshing Antigravity models…", "info");
-    try {
-      if (typeof ctx.modelRegistry?.refresh === "function") {
-        const result = await ctx.modelRegistry.refresh({
-          force: true,
-          providers: [PROVIDER_ID],
-        });
-        if (result?.errors?.has(PROVIDER_ID)) {
-          throw result.errors.get(PROVIDER_ID)!;
-        }
-      } else {
-        const discovered = await discoverAntigravityModels(apiKey);
-        const next = resolvedCatalog(discovered, getCurrentAntigravityCatalog());
-        if (discovered.models.length > 0) {
-          applyAntigravityCatalog(next);
-        }
-      }
-      const catalog = getCurrentAntigravityCatalog();
-      const count = catalog.models.length;
-      const sample = catalog.models
-        .slice(0, 5)
-        .map((m) => m.name || m.id)
-        .join(", ");
-      emitCommandOutput(
-        ctx,
-        `Antigravity models refreshed (${count} available: ${sample}${count > 5 ? ", …" : ""})`,
-        "info",
-      );
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error);
-      emitCommandOutput(ctx, `Antigravity model refresh failed: ${redactSecrets(msg)}`, "error");
-    }
-  };
-  pi.registerCommand("agy-refresh", {
-    description: "Force refresh Antigravity dynamic model catalog",
-    handler: refreshHandler,
-  });
-  pi.registerCommand("antigravity.refresh", {
-    description: "Alias for /agy-refresh",
-    handler: refreshHandler,
-  });
-
   // Doctor handler
   const doctorHandler = async (_args: string, ctx: ExtensionCommandContext) => {
     const d = getLastDiagnostics();
@@ -274,7 +207,7 @@ export default function (pi: ExtensionAPI): void {
       `lastError=${d.error ? redactSecrets(d.error) : "none"}`,
       "transport=native-streamSimple (standalone, no agy.exe required)",
       "accountMode=single-account (/login agy, /logout)",
-      "commands=/agy-doctor /agy-usage /agy-models /agy-refresh /generate-image /agy-search",
+      "commands=/agy-doctor /agy-usage /generate /agy-search",
     ];
     emitCommandOutput(ctx, `pi-agy doctor\n${lines.join("\n")}`);
   };
@@ -287,13 +220,13 @@ export default function (pi: ExtensionAPI): void {
     handler: doctorHandler,
   });
 
-  // Image generation handler (/generate-image)
+  // Image generation handler (/generate)
   const imageHandler = async (args: string, ctx: ExtensionCommandContext) => {
     const parsed = parseImageCommandArgs(args || "");
     if (!parsed.prompt) {
       emitCommandOutput(
         ctx,
-        "Usage: /generate-image [--ratio 16:9] [--model gemini-3.1-flash-image] [--path file.png] <prompt>",
+        "Usage: /generate [--ratio 16:9] [--model gemini-3.1-flash-image] [--path file.png] <prompt>",
         "warning",
       );
       return;
@@ -323,13 +256,13 @@ export default function (pi: ExtensionAPI): void {
       emitCommandOutput(ctx, `Image generation failed: ${redactSecrets(msg)}`, "warning");
     }
   };
-  pi.registerCommand("generate-image", {
+  pi.registerCommand("generate", {
     description:
-      "Generate an image via Antigravity (usage: /generate-image [--ratio 16:9] <prompt>)",
+      "Generate an image via Antigravity (usage: /generate [--ratio 16:9] <prompt>)",
     handler: imageHandler,
   });
-  pi.registerCommand("antigravity.image", {
-    description: "Alias for /generate-image",
+  pi.registerCommand("generate-image", {
+    description: "Alias for /generate",
     handler: imageHandler,
   });
 
