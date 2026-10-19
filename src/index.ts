@@ -170,10 +170,6 @@ export default function (pi: ExtensionAPI): void {
     description: "Show Antigravity shared quota pools (Gemini / Claude+GPT, 5h + weekly)",
     handler: usageHandler,
   });
-  pi.registerCommand("antigravity.usage", {
-    description: "Alias for /agy-usage",
-    handler: usageHandler,
-  });
 
   // Doctor handler
   const doctorHandler = async (_args: string, ctx: ExtensionCommandContext) => {
@@ -213,10 +209,6 @@ export default function (pi: ExtensionAPI): void {
   };
   pi.registerCommand("agy-doctor", {
     description: "Show sanitized Antigravity (pi-agy) provider diagnostics and health",
-    handler: doctorHandler,
-  });
-  pi.registerCommand("antigravity.doctor", {
-    description: "Alias for /agy-doctor",
     handler: doctorHandler,
   });
 
@@ -261,10 +253,6 @@ export default function (pi: ExtensionAPI): void {
       "Generate an image via Antigravity (usage: /generate [--ratio 16:9] <prompt>)",
     handler: imageHandler,
   });
-  pi.registerCommand("generate-image", {
-    description: "Alias for /generate",
-    handler: imageHandler,
-  });
 
   // Search handler
   const searchHandler = async (args: string, ctx: ExtensionCommandContext) => {
@@ -303,10 +291,6 @@ export default function (pi: ExtensionAPI): void {
   pi.registerCommand("agy-search", {
     description:
       "Search the web via Antigravity Grounding (usage: /agy-search [--thinking] [--url <url>] <query>)",
-    handler: searchHandler,
-  });
-  pi.registerCommand("antigravity.search", {
-    description: "Alias for /agy-search",
     handler: searchHandler,
   });
 }
