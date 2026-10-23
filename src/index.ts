@@ -118,14 +118,13 @@ export default function (pi: ExtensionAPI): void {
 
   // Refresh catalog on session start so dynamic models (Gemini 4 Argon, Claude 5.5)
   // are hydrated immediately.
-  pi.on("session_start", async (_event, ctx) => {
+  // Not awaited: pi blocks input until session_start handlers finish.
+  pi.on("session_start", (_event, ctx) => {
     if (process.env.PI_OFFLINE !== undefined) return;
     if (typeof ctx.modelRegistry?.refresh !== "function") return;
-    try {
-      await ctx.modelRegistry.refresh({ providers: [PROVIDER_ID] });
-    } catch {
+    ctx.modelRegistry.refresh({ providers: [PROVIDER_ID] }).catch(() => {
       // Last-known-good catalog stays in place.
-    }
+    });
   });
 
   const initialCatalog = getCurrentAntigravityCatalog();
