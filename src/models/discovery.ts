@@ -62,6 +62,24 @@ export function hydrateAntigravityCatalog(stored: unknown): number {
     : 0;
 }
 
+/**
+ * The backend's recommended-model list is tier-dependent: a model that is live but not
+ * recommended for this account (Gemini 4 Hydrogen on free tier) is absent from discovery,
+ * and replacing the catalog wholesale would make it unselectable again. Keep every seeded
+ * model that discovery omitted.
+ */
+function withSeededModels(catalog: AntigravityCatalog): AntigravityCatalog {
+  const present = new Set(catalog.models.map((model) => model.id));
+  const missing = ANTIGRAVITY_MODELS.filter((model) => !present.has(model.id));
+  if (missing.length === 0) return catalog;
+  const routing = { ...catalog.routing };
+  for (const model of missing) {
+    const seeded = ANTIGRAVITY_ROUTING[model.id];
+    if (seeded) routing[model.id] = seeded;
+  }
+  return { models: [...catalog.models, ...missing], routing };
+}
+
 export async function discoverAntigravityModels(
   apiKey: string,
   signal?: AbortSignal,
@@ -116,7 +134,7 @@ export async function refreshAntigravityModels(
   try {
     const discovered = await discoverAntigravityModels(apiKey, context.signal);
     if (context.signal.aborted) return current.models;
-    const next = resolvedCatalog(discovered, current);
+    const next = withSeededModels(resolvedCatalog(discovered, current));
     if (next.models.length > 0 && discovered.models.length > 0) {
       applyAntigravityCatalog(next);
       const refreshedAt = Date.now();
