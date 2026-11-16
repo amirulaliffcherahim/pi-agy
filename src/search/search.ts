@@ -171,11 +171,13 @@ export function buildSearchRequest(
     project: projectId,
     model,
     request: {
-      systemInstruction: {
-        role: GeminiRole.User,
-        parts: [{ text: systemInstructionText }],
-      },
+      // Same `systemInstruction` rejection as the chat path: the grounding prompt
+      // travels as a leading user turn instead of the system role.
       contents: [
+        {
+          role: GeminiRole.User,
+          parts: [{ text: `<system_instructions>\n${systemInstructionText}\n</system_instructions>` }],
+        },
         {
           role: GeminiRole.User,
           parts: [{ text: prompt }],

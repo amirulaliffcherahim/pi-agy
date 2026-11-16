@@ -892,10 +892,12 @@ export function buildRequest(
   );
   const systemPromptText = resolveCurrentSystemPrompt(context);
   const declaredTools = resolveCurrentTools(context);
-  const systemParts = systemPromptText
-    ? [{ text: sanitizeText(systemPromptText) }]
-    : [{ text: ANTIGRAVITY_SYSTEM_INSTRUCTION }, { text: ANTIGRAVITY_NO_PREAMBLE_INSTRUCTION }];
-  systemParts.push(...injectedSkills.map((skill) => ({ text: sanitizeText(skill) })));
+  const instructionText = [
+    systemPromptText
+      ? sanitizeText(systemPromptText)
+      : `${ANTIGRAVITY_SYSTEM_INSTRUCTION}\n\n${ANTIGRAVITY_NO_PREAMBLE_INSTRUCTION}`,
+    ...injectedSkills.map((skill) => sanitizeText(skill)),
+  ].join("\n\n");
 
   const contents = convertMessages(model, context, runtimeModel);
   const hasUserText = contents.some(
@@ -910,13 +912,17 @@ export function buildRequest(
     });
   }
 
-  const request: GeminiRequestBody = {
-    contents,
-    systemInstruction: {
-      role: GeminiRole.User,
-      parts: systemParts,
-    },
-  };
+  // Cloud Code Assist now answers a `systemInstruction` payload that reads like a
+  // third-party harness prompt with a generic 429 RESOURCE_EXHAUSTED, even when every
+  // quota bucket reports remainingFraction 1. Verified 2026-11-16: the same body with
+  // `systemInstruction` removed succeeds on every model, so the instructions travel as a
+  // leading user turn instead of the system role.
+  contents.unshift({
+    role: GeminiRole.User,
+    parts: [{ text: `<system_instructions>\n${instructionText}\n</system_instructions>` }],
+  });
+
+  const request: GeminiRequestBody = { contents };
 
   const generationConfig: GeminiGenerationConfig = {};
   if (options.temperature !== undefined) generationConfig.temperature = options.temperature;
