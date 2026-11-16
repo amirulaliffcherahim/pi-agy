@@ -12,7 +12,7 @@ Standalone **Antigravity (`agy`)** provider extension for [Pi Coding Agent](http
    - Uses single-account OAuth 2.0 + PKCE stored directly in Pi's `~/.pi/agent/auth.json` (no multi-account failover bloat).
 3. **Live Model Catalog & Dynamic Refresh**:
    - Automatically discovers and updates models via `/v1internal:fetchAvailableModels` on startup and via `/agy-refresh`.
-   - Includes **Gemini 4 Argon** (`low` / `medium` / `high`), **Gemini 3.8 Flash** (`low` / `medium` / `high`), **Claude Opus 5.5** (`low` / `medium` / `high`), **Claude Sonnet 5.5** (`low` / `medium` / `high`), and **GPT-OSS 120B** (`medium`).
+   - Includes **Gemini 4 Hydrogen** (`low` / `medium` / `high`), **Gemini 4 Argon** (`low` / `medium` / `high`), **Gemini 3.8 Flash** (`low` / `medium` / `high`), **Claude Opus 5.5** (`low` / `medium` / `high`), **Claude Sonnet 5.5** (`low` / `medium` / `high`), and **GPT-OSS 120B** (`medium`).
 4. **Usage, Quota Pools & Model Availability**:
    - `/agy-usage`: Inspect shared 5-hour and weekly quota pools via `/v1internal:retrieveUserQuotaSummary`.
    - `/agy-models [all]`: View per-model availability, remaining pool percentage, reset timers, and capability flags.

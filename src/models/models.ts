@@ -10,6 +10,7 @@ export const PROVIDER_NAME = "agy";
  * Public selectable model IDs → backend request model IDs by thinking effort.
  *
  * Catalog mirrors `agy models` v1.4.2 (cl=985595000), which advertises:
+ * - Gemini 4 Hydrogen (Low / Medium / High)
  * - Gemini 4 Argon (Low / Medium / High)
  * - Gemini 3.8 Flash (Low / Medium / High)
  * - Claude Opus 5.5 (Low / Medium / High)
@@ -18,6 +19,17 @@ export const PROVIDER_NAME = "agy";
  * - Plus fallback routing for Gemini 3.7/3.6/3.5 Flash, Gemini 3.1 Pro, Claude 4.6
  */
 export const ANTIGRAVITY_ROUTING: Record<string, AntigravityRouting> = {
+  "gemini-4-hydrogen": {
+    off: "gemini-4-hydrogen-low",
+    routing: {
+      minimal: "gemini-4-hydrogen-low",
+      low: "gemini-4-hydrogen-low",
+      medium: "gemini-4-hydrogen-medium",
+      high: "gemini-4-hydrogen-high",
+      xhigh: "gemini-4-hydrogen-high",
+    },
+    defaultRequestId: "gemini-4-hydrogen-medium",
+  },
   "gemini-4-argon": {
     off: "gemini-4-argon-low",
     routing: {
@@ -142,6 +154,10 @@ export const ANTIGRAVITY_ROUTING: Record<string, AntigravityRouting> = {
  * Verified maximum output tokens accepted by the Cloud Code Assist backend per model/runtime ID.
  */
 export const RUNTIME_MAX_OUTPUT_TOKENS: Record<string, number> = {
+  "gemini-4-hydrogen": 65536,
+  "gemini-4-hydrogen-low": 65536,
+  "gemini-4-hydrogen-medium": 65536,
+  "gemini-4-hydrogen-high": 65536,
   "gemini-4-argon": 65536,
   "gemini-4-argon-low": 65536,
   "gemini-4-argon-medium": 65536,
@@ -250,6 +266,16 @@ const thinkingLevelMaps = {
 
 /** Same set as `agy models` v1.4.2, collapsed to public Pi model IDs. */
 export const ANTIGRAVITY_MODELS: ProviderModelConfig[] = [
+  {
+    id: "gemini-4-hydrogen",
+    name: "Gemini 4 Hydrogen (agy)",
+    reasoning: true,
+    thinkingLevelMap: thinkingLevelMaps.lowMediumHigh,
+    input: ["text", "image"],
+    cost: geminiProCost,
+    contextWindow: 1048576,
+    maxTokens: 65536,
+  },
   {
     id: "gemini-4-argon",
     name: "Gemini 4 Argon (agy)",
